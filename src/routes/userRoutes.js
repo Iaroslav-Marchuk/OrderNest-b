@@ -22,8 +22,8 @@ const router = Router();
 
 router.get(
   '/',
-  checkRole('admin'),
   authenticate,
+  checkRole('admin'),
   ctrlWrapper(getAllUsersController),
 );
 

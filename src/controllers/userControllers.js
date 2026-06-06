@@ -27,10 +27,11 @@ export const getUserByIdController = async (req, res) => {
 };
 
 export const createUserController = async (req, res) => {
-  await createUserService(req.body);
+  const user = await createUserService(req.body);
 
   res.status(201).json({
     message: 'New user created successfully!',
+    data: { user },
   });
 };
 
