@@ -1,18 +1,35 @@
 import {
-  changeUserPasswordService,
   createUserService,
   deleteUserService,
   getAllUsersService,
   getUserByIdService,
   patchUserService,
+  resetUserPasswordService,
 } from '../services/userServices.js';
+import { parsePaginationParams } from '../utils/parsePaginationParams.js';
+import { parseSortParams } from '../utils/parseSortParams.js';
+import { parseUserFilterParams } from '../utils/parseUserFilterParams.js';
 
 export const getAllUsersController = async (req, res) => {
-  const allUsers = await getAllUsersService();
+  const { page, perPage } = parsePaginationParams(req.query);
+  const { sortBy, sortOrder } = parseSortParams(req.query, [
+    'name',
+    'role',
+    'createdAt',
+  ]);
+  const filter = parseUserFilterParams(req.query);
+
+  const allUsers = await getAllUsersService({
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+    filter,
+  });
 
   res.status(200).json({
     message: 'Users found successfully!',
-    data: { allUsers },
+    data: allUsers,
   });
 };
 
@@ -46,11 +63,11 @@ export const patchUserController = async (req, res) => {
   });
 };
 
-export const changeUserPasswordController = async (req, res) => {
+export const resetUserPasswordController = async (req, res) => {
   const { userId } = req.params;
   const { newPass } = req.body;
 
-  await changeUserPasswordService(userId, newPass);
+  await resetUserPasswordService(userId, newPass);
 
   res.status(200).json({
     message: 'Password changed successfully',

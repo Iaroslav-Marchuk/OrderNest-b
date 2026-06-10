@@ -34,7 +34,7 @@ router.patch(
   '/:clientId',
   authenticate,
   checkRole('admin'),
-  isValidId,
+  isValidId('clientId'),
   validateBody(clientSchema),
   ctrlWrapper(patchClientController),
 );
@@ -43,7 +43,7 @@ router.delete(
   '/:clientId',
   authenticate,
   checkRole('admin'),
-  isValidId,
+  isValidId('clientId'),
   ctrlWrapper(deleteClientController),
 );
 

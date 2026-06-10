@@ -94,7 +94,7 @@ export const getCurrentUserService = async (userId) => {
   return user;
 };
 
-export const changeMyPasswordService = async (userId, oldPass, newPass) => {
+export const changePasswordService = async (userId, oldPass, newPass) => {
   const user = await UsersCollection.findById(userId);
   if (!user) throw createHttpError(404, 'User not found!');
 

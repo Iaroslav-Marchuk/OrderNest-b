@@ -1,7 +1,7 @@
 import { REFRESH_TOKEN_EXP } from '../constants/constants.js';
 
 import {
-  changeMyPasswordService,
+  changePasswordService,
   getCurrentUserService,
   loginUserService,
   logoutUserService,
@@ -76,11 +76,11 @@ export const getCurrentUserController = async (req, res) => {
   });
 };
 
-export const changeMyPasswordController = async (req, res) => {
+export const changePasswordController = async (req, res) => {
   const userId = req.user._id;
   const { oldPass, newPass } = req.body;
 
-  const { accessToken, refreshToken, user } = await changeMyPasswordService(
+  const { accessToken, refreshToken, user } = await changePasswordService(
     userId,
     oldPass,
     newPass,

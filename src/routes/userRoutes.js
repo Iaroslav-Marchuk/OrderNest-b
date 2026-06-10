@@ -2,18 +2,18 @@ import { Router } from 'express';
 import { validateBody } from '../middlewares/validateBody.js';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import {
-  changeUserPasswordController,
   createUserController,
   deleteUserController,
   getAllUsersController,
   getUserByIdController,
   patchUserController,
+  resetUserPasswordController,
 } from '../controllers/userControllers.js';
 import { isValidId } from '../middlewares/isValidId.js';
 import {
-  changeUserPasswordSchema,
   createUserSchema,
   patchUserSchema,
+  resetUserPasswordSchema,
 } from '../validation/userValidation.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { checkRole } from '../middlewares/checkRole.js';
@@ -31,7 +31,7 @@ router.get(
   '/:userId',
   authenticate,
   checkRole('admin'),
-  isValidId,
+  isValidId('userId'),
   ctrlWrapper(getUserByIdController),
 );
 
@@ -47,7 +47,7 @@ router.patch(
   '/:userId',
   authenticate,
   checkRole('admin'),
-  isValidId,
+  isValidId('userId'),
   validateBody(patchUserSchema),
   ctrlWrapper(patchUserController),
 );
@@ -56,16 +56,16 @@ router.patch(
   '/:userId/password',
   authenticate,
   checkRole('admin'),
-  isValidId,
-  validateBody(changeUserPasswordSchema),
-  ctrlWrapper(changeUserPasswordController),
+  isValidId('userId'),
+  validateBody(resetUserPasswordSchema),
+  ctrlWrapper(resetUserPasswordController),
 );
 
 router.delete(
   '/:userId',
   authenticate,
   checkRole('admin'),
-  isValidId,
+  isValidId('userId'),
   ctrlWrapper(deleteUserController),
 );
 

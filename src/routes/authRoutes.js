@@ -2,11 +2,11 @@ import { Router } from 'express';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import {
-  changeMyPasswordSchema,
+  changePasswordSchema,
   loginUserSchema,
 } from '../validation/authValidation.js';
 import {
-  changeMyPasswordController,
+  changePasswordController,
   getCurrentUserController,
   loginUserController,
   logoutUserController,
@@ -29,10 +29,10 @@ router.post('/refresh', ctrlWrapper(refreshSessionController));
 router.get('/currentUser', authenticate, ctrlWrapper(getCurrentUserController));
 
 router.patch(
-  '/changeMyPassword',
+  '/change-password',
   authenticate,
-  validateBody(changeMyPasswordSchema),
-  ctrlWrapper(changeMyPasswordController),
+  validateBody(changePasswordSchema),
+  ctrlWrapper(changePasswordController),
 );
 
 export default router;

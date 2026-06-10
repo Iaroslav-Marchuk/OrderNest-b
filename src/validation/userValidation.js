@@ -2,7 +2,10 @@ import Joi from 'joi';
 
 export const createUserSchema = Joi.object({
   name: Joi.string().trim().min(3).max(30).required(),
-  tel: Joi.string().trim().required(),
+  tel: Joi.string()
+    .trim()
+    .pattern(/^\d{9}$/)
+    .required(),
   role: Joi.string()
     .valid(
       'admin',
@@ -19,7 +22,9 @@ export const createUserSchema = Joi.object({
 
 export const patchUserSchema = Joi.object({
   name: Joi.string().trim().min(3).max(30),
-  tel: Joi.string().trim(),
+  tel: Joi.string()
+    .trim()
+    .pattern(/^\d{9}$/),
   role: Joi.string().valid(
     'admin',
     'cutting',
@@ -33,6 +38,6 @@ export const patchUserSchema = Joi.object({
   telegramChatId: Joi.string().allow(null),
 }).min(1);
 
-export const changeUserPasswordSchema = Joi.object({
+export const resetUserPasswordSchema = Joi.object({
   newPass: Joi.string().trim().min(6).max(16).required(),
 });

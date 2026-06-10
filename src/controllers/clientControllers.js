@@ -25,7 +25,6 @@ export const addNewClientController = async (req, res) => {
 
 export const patchClientController = async (req, res) => {
   const { clientId } = req.params;
-
   const updatedClient = await patchClientService(clientId, req.body);
 
   res.status(200).json({
