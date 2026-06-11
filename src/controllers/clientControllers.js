@@ -4,13 +4,29 @@ import {
   getAllClientsService,
   patchClientService,
 } from '../services/clientServices.js';
+import { parseClientFilterParams } from '../utils/parseFilterParams.js';
+import { parsePaginationParams } from '../utils/parsePaginationParams.js';
+import { parseSortParams } from '../utils/parseSortParams.js';
 
 export const getAllClientsController = async (req, res) => {
-  const allClients = await getAllClientsService();
+  const { page, perPage } = parsePaginationParams(req.query);
+  const { sortBy, sortOrder } = parseSortParams(req.query, [
+    'name',
+    'createdAt',
+  ]);
+  const filter = parseClientFilterParams(req.query);
+
+  const allClients = await getAllClientsService({
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+    filter,
+  });
 
   res.status(200).json({
     message: 'Clients found successfully!',
-    data: { allClients },
+    data: allClients,
   });
 };
 

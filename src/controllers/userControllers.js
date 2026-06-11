@@ -6,9 +6,9 @@ import {
   patchUserService,
   resetUserPasswordService,
 } from '../services/userServices.js';
+import { parseUserFilterParams } from '../utils/parseFilterParams.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
-import { parseUserFilterParams } from '../utils/parseUserFilterParams.js';
 
 export const getAllUsersController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);

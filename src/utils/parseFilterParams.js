@@ -24,3 +24,17 @@ export function parseUserFilterParams(query) {
     isActive: parsedIsActive,
   };
 }
+
+export function parseClientFilterParams(query) {
+  const { name } = query;
+
+  const parsedName = parseText(name);
+
+  return {
+    name: parsedName,
+  };
+}
+
+export function parseGlassFilterParams(query) {}
+
+export function parseOrderFilterParams(query) {}
