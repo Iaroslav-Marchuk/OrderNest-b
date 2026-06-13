@@ -41,7 +41,7 @@ export function parseGlassCategoryFilterParams(query) {
   const parsedLabel = parseText(label);
 
   return {
-    name: parsedLabel,
+    label: parsedLabel,
   };
 }
 
