@@ -9,7 +9,8 @@
     "dev": "nodemon src/server.js",
     "seed:admin": "node scripts/createAdmin.js",
     "seed:clients": "node scripts/seedClients.js",
-    "seed:glassCategories": " node scripts/seedGlassCategories.js"
+    "seed:glassCategories": "node scripts/seedGlassCategories.js",
+    "seed:glassTypes": "node scripts/seedGlassTypes.js"
   },
   "repository": {
     "type": "git",

@@ -45,6 +45,14 @@ export function parseGlassCategoryFilterParams(query) {
   };
 }
 
-export function parseGlassTypeFilterParams(query) {}
+export function parseGlassTypeFilterParams(query) {
+  const { label } = query;
+
+  const parsedLabel = parseText(label);
+
+  return {
+    label: parsedLabel,
+  };
+}
 
 export function parseOrderFilterParams(query) {}

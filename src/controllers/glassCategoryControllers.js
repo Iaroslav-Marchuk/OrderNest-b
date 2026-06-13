@@ -3,7 +3,7 @@ import {
   deleteGlassCategoryService,
   getAllGlassCategoriesService,
   patchGlassCategoryService,
-} from '../services/glassCategoryService.js';
+} from '../services/glassCategoryServices.js';
 
 import { parseGlassCategoryFilterParams } from '../utils/parseFilterParams.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
