@@ -2,14 +2,10 @@ import mongoose from 'mongoose';
 
 const glassCategorySchema = new mongoose.Schema(
   {
-    categoryId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     label: {
       type: String,
       required: true,
+      unique: true,
     },
   },
   { timestamps: true, versionKey: false },

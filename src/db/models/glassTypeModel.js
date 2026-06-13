@@ -2,17 +2,14 @@ import mongoose from 'mongoose';
 
 const glassTypeSchema = new mongoose.Schema(
   {
-    typeId: {
+    label: {
       type: String,
       required: true,
       unique: true,
     },
-    label: {
-      type: String,
-      required: true,
-    },
     category: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'GlassCategories',
       required: true,
     },
     thickness: [{ type: String }],

@@ -2,13 +2,14 @@ import 'dotenv/config';
 
 import mongoose from 'mongoose';
 import { initMongoDB } from '../src/db/initMongoDB.js';
-import { ClientModel } from '../src/db/models/clientModel.js';
+
 import { CLIENTS } from '../src/constants/clientsBase.js';
+import { ClientsCollection } from '../src/db/models/clientModel.js';
 
 async function seedClients() {
   await initMongoDB();
 
-  const existing = await ClientModel.countDocuments();
+  const existing = await ClientsCollection.countDocuments();
   if (existing > 0) {
     console.log(`Already seeded (${existing} clients). Skipping.`);
     await mongoose.disconnect();
@@ -16,7 +17,7 @@ async function seedClients() {
   }
 
   const docs = CLIENTS.map((name) => ({ name }));
-  await ClientModel.insertMany(docs);
+  await ClientsCollection.insertMany(docs);
   console.log(`Seeded ${docs.length} clients`);
 
   await mongoose.disconnect();

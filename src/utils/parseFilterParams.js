@@ -35,6 +35,16 @@ export function parseClientFilterParams(query) {
   };
 }
 
-export function parseGlassFilterParams(query) {}
+export function parseGlassCategoryFilterParams(query) {
+  const { label } = query;
+
+  const parsedLabel = parseText(label);
+
+  return {
+    name: parsedLabel,
+  };
+}
+
+export function parseGlassTypeFilterParams(query) {}
 
 export function parseOrderFilterParams(query) {}

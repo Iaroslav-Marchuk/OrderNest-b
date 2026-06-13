@@ -36,7 +36,7 @@ export const getAllClientsService = async ({
 };
 
 export const addNewClientService = async ({ name }) => {
-  const existClient = await ClientsCollection.findOne({ name: name });
+  const existClient = await ClientsCollection.findOne({ name });
 
   if (existClient) throw createHttpError(409, 'Client already exists!');
 
