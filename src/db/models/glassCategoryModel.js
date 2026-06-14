@@ -7,6 +7,11 @@ const glassCategorySchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    isLaminated: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   { timestamps: true, versionKey: false },
 );

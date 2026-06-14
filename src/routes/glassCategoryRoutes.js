@@ -11,7 +11,10 @@ import {
   getAllGlassCategoriesController,
   patchGlassCategoryController,
 } from '../controllers/glassCategoryControllers.js';
-import { glassCategorySchema } from '../validation/glassCategoryValidation.js';
+import {
+  addNewGlassCategorySchema,
+  patchGlassCategorySchema,
+} from '../validation/glassCategoryValidation.js';
 
 const router = Router();
 
@@ -26,7 +29,7 @@ router.post(
   '/',
   authenticate,
   checkRole('admin'),
-  validateBody(glassCategorySchema),
+  validateBody(addNewGlassCategorySchema),
   ctrlWrapper(addNewGlassCategoryController),
 );
 
@@ -35,7 +38,7 @@ router.patch(
   authenticate,
   checkRole('admin'),
   isValidId('glassCategoryId'),
-  validateBody(glassCategorySchema),
+  validateBody(patchGlassCategorySchema),
   ctrlWrapper(patchGlassCategoryController),
 );
 

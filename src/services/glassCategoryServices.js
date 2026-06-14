@@ -41,7 +41,7 @@ export const getAllGlassCategoriesService = async ({
   return { glassCategories, ...paginationData };
 };
 
-export const addNewGlassCategoryService = async ({ label }) => {
+export const addNewGlassCategoryService = async ({ label, isLaminated }) => {
   const existGlassCategory = await GlassCategoriesCollection.findOne({
     label,
   });
@@ -51,6 +51,7 @@ export const addNewGlassCategoryService = async ({ label }) => {
 
   return await GlassCategoriesCollection.create({
     label,
+    isLaminated,
   });
 };
 

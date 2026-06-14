@@ -46,12 +46,14 @@ export function parseGlassCategoryFilterParams(query) {
 }
 
 export function parseGlassTypeFilterParams(query) {
-  const { label } = query;
+  const { label, glassCategory } = query;
 
   const parsedLabel = parseText(label);
+  const parsedGlassCategory = parseText(glassCategory);
 
   return {
     label: parsedLabel,
+    glassCategory: parsedGlassCategory,
   };
 }
 

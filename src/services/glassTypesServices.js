@@ -23,6 +23,8 @@ export const getAllGlassTypesService = async ({
     };
   }
 
+  if (filter.glassCategory) mongoFilter.category = filter.glassCategory;
+
   const glassTypeCount = await GlassTypesCollection.countDocuments(mongoFilter);
 
   const glassTypes = await GlassTypesCollection.find(mongoFilter)
