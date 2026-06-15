@@ -60,7 +60,7 @@ export const GLASS_TYPES = [
   },
 
   {
-    label: 'V. Lam. Silence.',
+    label: 'V. Lam. Silence',
     category: 'Laminado Acustico',
     thickness: ['3+3', '4+4', '5+5', '6+6'],
     temper: 'forbidden',

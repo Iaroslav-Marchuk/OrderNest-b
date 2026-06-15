@@ -12,6 +12,7 @@ export const getAllGlassTypesController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query, [
     'label',
+    'category',
     'createdAt',
   ]);
 
