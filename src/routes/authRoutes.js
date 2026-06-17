@@ -3,11 +3,13 @@ import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import {
   changePasswordSchema,
+  locationOfUserSchema,
   loginUserSchema,
 } from '../validation/authValidation.js';
 import {
   changePasswordController,
   getCurrentUserController,
+  locationOfUserController,
   loginUserController,
   logoutUserController,
   refreshSessionController,
@@ -33,6 +35,13 @@ router.patch(
   authenticate,
   validateBody(changePasswordSchema),
   ctrlWrapper(changePasswordController),
+);
+
+router.post(
+  '/setLocation',
+  authenticate,
+  validateBody(locationOfUserSchema),
+  ctrlWrapper(locationOfUserController),
 );
 
 export default router;

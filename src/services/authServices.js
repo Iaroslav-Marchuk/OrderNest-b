@@ -21,9 +21,13 @@ export const loginUserService = async ({ tel, password }) => {
 
   await SessionsCollection.deleteOne({ userId: user._id });
 
-  const accessToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
-    expiresIn: ACCESS_TOKEN_EXP / 1000,
-  });
+  const accessToken = jwt.sign(
+    { userId: user._id, role: user.role, location: null },
+    JWT_SECRET,
+    {
+      expiresIn: ACCESS_TOKEN_EXP / 1000,
+    },
+  );
 
   const refreshToken = randomBytes(30).toString('base64');
 
@@ -63,10 +67,14 @@ export const refreshSessionService = async (refreshToken) => {
   if (isRefreshTokenExpired)
     throw createHttpError(401, 'Refresh token expired!');
 
+  const user = await UsersCollection.findById(currentSession.userId).select(
+    '-password',
+  );
+
   await SessionsCollection.deleteOne({ refreshToken });
 
   const newAccessToken = jwt.sign(
-    { userId: currentSession.userId },
+    { userId: currentSession.userId, role: user.role, location: null },
     JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXP / 1000 },
   );
@@ -78,10 +86,6 @@ export const refreshSessionService = async (refreshToken) => {
     refreshToken: newRefreshToken,
     refreshTokenValidUntil: new Date(Date.now() + REFRESH_TOKEN_EXP),
   });
-
-  const user = await UsersCollection.findById(currentSession.userId).select(
-    '-password',
-  );
 
   return { accessToken: newAccessToken, refreshToken: newRefreshToken, user };
 };
@@ -107,9 +111,13 @@ export const changePasswordService = async (userId, oldPass, newPass) => {
   await user.save();
 
   await SessionsCollection.deleteOne({ userId: user._id });
-  const accessToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
-    expiresIn: ACCESS_TOKEN_EXP / 1000,
-  });
+  const accessToken = jwt.sign(
+    { userId: user._id, role: user.role, location: null },
+    JWT_SECRET,
+    {
+      expiresIn: ACCESS_TOKEN_EXP / 1000,
+    },
+  );
   const refreshToken = randomBytes(30).toString('base64');
 
   await SessionsCollection.create({
@@ -126,4 +134,23 @@ export const changePasswordService = async (userId, oldPass, newPass) => {
       tel: user.tel,
     },
   };
+};
+
+export const locationOfUserService = async (userId, location) => {
+  const user = await UsersCollection.findById(userId);
+  if (!user) throw createHttpError(404, 'User not found!');
+  if (user.role !== 'assembly')
+    throw createHttpError(403, 'Only assembly users can set location!');
+
+  const validLocation = ['line_1', 'line_2', 'line_3'];
+  if (!validLocation.includes(location))
+    throw createHttpError(400, 'Invalid location value!');
+
+  const accessToken = jwt.sign(
+    { userId: user._id, role: user.role, location },
+    JWT_SECRET,
+    { expiresIn: ACCESS_TOKEN_EXP / 1000 },
+  );
+
+  return { accessToken };
 };
