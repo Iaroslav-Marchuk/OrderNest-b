@@ -3,6 +3,17 @@ function parseText(value) {
   return value.trim();
 }
 
+function parseNumber(value) {
+  const isString = typeof value === 'string';
+  if (!isString) return;
+
+  const parsedNumber = parseInt(value);
+  if (Number.isNaN(parsedNumber)) {
+    return;
+  }
+  return parsedNumber;
+}
+
 function parseBoolean(value) {
   if (value === 'true') return true;
   if (value === 'false') return false;
@@ -57,4 +68,18 @@ export function parseGlassTypeFilterParams(query) {
   };
 }
 
-export function parseOrderFilterParams(query) {}
+export function parseOrderFilterParams(query) {
+  const { ep, client, status, location, date } = query;
+  const parsedEp = parseNumber(ep);
+  const parsedClient = parseText(client);
+  const parsedStatus = parseText(status);
+  const parsedLocation = parseText(location);
+  const parsedDate = parseText(date);
+  return {
+    ep: parsedEp,
+    client: parsedClient,
+    status: parsedStatus,
+    location: parsedLocation,
+    date: parsedDate,
+  };
+}

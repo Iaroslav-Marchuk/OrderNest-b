@@ -8,6 +8,8 @@ export const SORT_ORDER = {
 export const ACCESS_TOKEN_EXP = 15 * 60 * 1000;
 export const REFRESH_TOKEN_EXP = 24 * 60 * 60 * 1000;
 
+export const STATUSES = ['created', 'in_progress', 'completed'];
+
 // export const SMTP = {
 //   SMTP_HOST: 'SMTP_HOST',
 //   SMTP_PORT: 'SMTP_PORT',

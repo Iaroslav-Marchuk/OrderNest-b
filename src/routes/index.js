@@ -5,6 +5,7 @@ import userRouter from './userRoutes.js';
 import clientRouter from './clientRoutes.js';
 import glassCategoryRouter from './glassCategoryRoutes.js';
 import glassTypeRouter from './glassTypeRouter.js';
+import orderRouter from './orderRoutes.js';
 
 const router = Router();
 
@@ -13,5 +14,6 @@ router.use('/users', userRouter);
 router.use('/clients', clientRouter);
 router.use('/glassCategories', glassCategoryRouter);
 router.use('/glassTypes', glassTypeRouter);
+router.use('/orders', orderRouter);
 
 export default router;
