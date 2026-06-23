@@ -8,6 +8,7 @@ import {
   addNewGlassTypeController,
   deleteGlassTypeController,
   getAllGlassTypesController,
+  getGlassTypesListController,
   patchGlassTypeController,
 } from '../controllers/glassTypeControllers.js';
 import {
@@ -17,12 +18,9 @@ import {
 
 const router = Router();
 
-router.get(
-  '/',
-  authenticate,
-  checkRole('admin'),
-  ctrlWrapper(getAllGlassTypesController),
-);
+router.get('/', authenticate, ctrlWrapper(getAllGlassTypesController));
+
+router.get('/list', authenticate, ctrlWrapper(getGlassTypesListController));
 
 router.post(
   '/',

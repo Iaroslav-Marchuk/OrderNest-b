@@ -35,6 +35,12 @@ export const getAllClientsService = async ({
   return { clients, ...paginationData };
 };
 
+export const getClientsListService = async () => {
+  const clientsList = await ClientsCollection.find().lean();
+
+  return clientsList;
+};
+
 export const addNewClientService = async ({ name }) => {
   const existClient = await ClientsCollection.findOne({ name });
 

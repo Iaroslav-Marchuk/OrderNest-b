@@ -2,6 +2,7 @@ import {
   addNewClientService,
   deleteClientService,
   getAllClientsService,
+  getClientsListService,
   patchClientService,
 } from '../services/clientServices.js';
 import { parseClientFilterParams } from '../utils/parseFilterParams.js';
@@ -27,6 +28,15 @@ export const getAllClientsController = async (req, res) => {
   res.status(200).json({
     message: 'Clients found successfully!',
     data: allClients,
+  });
+};
+
+export const getClientsListController = async (req, res) => {
+  const clientsList = await getClientsListService();
+
+  res.status(200).json({
+    message: 'Clients List found successfully!',
+    data: clientsList,
   });
 };
 

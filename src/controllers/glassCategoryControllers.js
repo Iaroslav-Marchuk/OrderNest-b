@@ -2,6 +2,7 @@ import {
   addNewGlassCategoryService,
   deleteGlassCategoryService,
   getAllGlassCategoriesService,
+  getGlassCategoriesListService,
   patchGlassCategoryService,
 } from '../services/glassCategoryServices.js';
 
@@ -29,6 +30,15 @@ export const getAllGlassCategoriesController = async (req, res) => {
   res.status(200).json({
     message: 'Glass categories found successfully!',
     data: allGlassCategories,
+  });
+};
+
+export const getGlassCategoriesListController = async (req, res) => {
+  const glassCategoriesList = await getGlassCategoriesListService();
+
+  res.status(200).json({
+    message: 'Glass Categories List found successfully!',
+    data: glassCategoriesList,
   });
 };
 

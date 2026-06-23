@@ -9,6 +9,7 @@ import {
   addNewGlassCategoryController,
   deleteGlassCategoryController,
   getAllGlassCategoriesController,
+  getGlassCategoriesListController,
   patchGlassCategoryController,
 } from '../controllers/glassCategoryControllers.js';
 import {
@@ -18,11 +19,12 @@ import {
 
 const router = Router();
 
+router.get('/', authenticate, ctrlWrapper(getAllGlassCategoriesController));
+
 router.get(
-  '/',
+  '/list',
   authenticate,
-  checkRole('admin'),
-  ctrlWrapper(getAllGlassCategoriesController),
+  ctrlWrapper(getGlassCategoriesListController),
 );
 
 router.post(

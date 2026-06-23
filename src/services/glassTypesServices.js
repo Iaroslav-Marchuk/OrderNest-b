@@ -39,6 +39,14 @@ export const getAllGlassTypesService = async ({
   return { glassTypes, ...paginationData };
 };
 
+export const getGlassTypesListService = async () => {
+  const glassTypesList = await GlassTypesCollection.find()
+    .populate('category', 'label')
+    .lean();
+
+  return glassTypesList;
+};
+
 export const addNewGlassTypeService = async ({
   label,
   category,

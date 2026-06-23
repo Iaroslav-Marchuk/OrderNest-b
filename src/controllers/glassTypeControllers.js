@@ -2,6 +2,7 @@ import {
   addNewGlassTypeService,
   deleteGlassTypeService,
   getAllGlassTypesService,
+  getGlassTypesListService,
   patchGlassTypeService,
 } from '../services/glassTypesServices.js';
 import { parseGlassTypeFilterParams } from '../utils/parseFilterParams.js';
@@ -29,6 +30,15 @@ export const getAllGlassTypesController = async (req, res) => {
   res.status(200).json({
     message: 'Glass types found successfully!',
     data: allGlassTypes,
+  });
+};
+
+export const getGlassTypesListController = async (req, res) => {
+  const glassTypesList = await getGlassTypesListService();
+
+  res.status(200).json({
+    message: 'Glass Types List found successfully!',
+    data: glassTypesList,
   });
 };
 

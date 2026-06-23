@@ -56,7 +56,8 @@ export const getAllOrdersService = async ({
 export const checkOrderExistsService = async (ep) => {
   const orders = await OrdersCollection.find({ ep })
     .populate('client', 'name')
-    .select('ep location status createdAt client')
+    .populate('owner', 'name')
+    .select('ep location status createdAt client owner')
     .lean();
 
   if (orders.length > 0) return { exists: true, orders };
@@ -136,11 +137,8 @@ export const getOrderItemsService = async (orderId) => {
   const items = await OrderItemsCollection.find({
     _id: { $in: existOrder.items },
   })
-    .populate({
-      path: 'type',
-      select: 'label category temper',
-      populate: { path: 'category', select: 'label' },
-    })
+
+    .populate('type', 'label')
     .lean();
 
   return items;

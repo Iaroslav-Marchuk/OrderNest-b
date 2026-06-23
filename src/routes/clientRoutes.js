@@ -9,18 +9,16 @@ import {
   addNewClientController,
   deleteClientController,
   getAllClientsController,
+  getClientsListController,
   patchClientController,
 } from '../controllers/clientControllers.js';
 import { clientSchema } from '../validation/clientValidation.js';
 
 const router = Router();
 
-router.get(
-  '/',
-  authenticate,
-  checkRole('admin'),
-  ctrlWrapper(getAllClientsController),
-);
+router.get('/', authenticate, ctrlWrapper(getAllClientsController));
+
+router.get('/list', authenticate, ctrlWrapper(getClientsListController));
 
 router.post(
   '/',

@@ -56,6 +56,12 @@ export const getAllGlassCategoriesService = async ({
   return { glassCategories: categoriesWithTypes, ...paginationData };
 };
 
+export const getGlassCategoriesListService = async () => {
+  const glassCategoriesList = await GlassCategoriesCollection.find().lean();
+
+  return glassCategoriesList;
+};
+
 export const addNewGlassCategoryService = async ({ label, isLaminated }) => {
   const existGlassCategory = await GlassCategoriesCollection.findOne({
     label,
