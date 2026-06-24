@@ -39,7 +39,7 @@ export const checkOrderExistsController = async (req, res) => {
 
   res.status(200).json({
     message: 'Order checked successfully!',
-    data: { checkedOrder },
+    data: checkedOrder,
   });
 };
 

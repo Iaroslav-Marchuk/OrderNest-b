@@ -13,8 +13,8 @@ export const createOrderSchema = Joi.object({
         thickness: Joi.string().min(1).max(20).required(),
         isTempered: Joi.boolean().required(),
         quantity: Joi.number().integer().positive().min(1).required(),
-        reason: Joi.string().min(1).max(100).required(),
-        notes: Joi.string().min(1).max(100),
+        reason: Joi.string().max(100).required(),
+        notes: Joi.string().max(100),
       }).required(),
     ),
 });
@@ -31,8 +31,8 @@ export const addItemToOrderOrderSchema = Joi.object({
   thickness: Joi.string().min(1).max(20).required(),
   isTempered: Joi.boolean().required(),
   quantity: Joi.number().integer().positive().min(1).required(),
-  reason: Joi.string().min(1).max(100).required(),
-  notes: Joi.string().min(1).max(100),
+  reason: Joi.string().max(100).required(),
+  notes: Joi.string().max(100),
 });
 
 export const patchOrderItemSchema = Joi.object({
@@ -42,8 +42,8 @@ export const patchOrderItemSchema = Joi.object({
   thickness: Joi.string().min(1).max(20),
   isTempered: Joi.boolean(),
   quantity: Joi.number().integer().positive().min(1),
-  reason: Joi.string().min(1).max(100),
-  notes: Joi.string().min(1).max(100),
+  reason: Joi.string().max(100),
+  notes: Joi.string().max(100),
 });
 
 export const updateOrderItemStatusSchema = Joi.object({

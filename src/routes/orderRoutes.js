@@ -49,7 +49,7 @@ router.patch(
 );
 
 router.post(
-  '/:orderId',
+  '/:orderId/items',
   authenticate,
   isValidId('orderId'),
   validateBody(addItemToOrderOrderSchema),
@@ -64,14 +64,14 @@ router.delete(
 );
 
 router.get(
-  '/:orderId',
+  '/:orderId/items',
   authenticate,
   isValidId('orderId'),
   ctrlWrapper(getOrderItemsController),
 );
 
 router.patch(
-  '/:orderId/:itemId',
+  '/:orderId/items/:itemId',
   authenticate,
   isValidId('orderId'),
   isValidId('itemId'),
@@ -80,7 +80,7 @@ router.patch(
 );
 
 router.delete(
-  '/:orderId/:itemId',
+  '/:orderId/items/:itemId',
   authenticate,
   isValidId('orderId'),
   isValidId('itemId'),
@@ -88,7 +88,7 @@ router.delete(
 );
 
 router.patch(
-  '/:orderId/:itemId/status',
+  '/:orderId/items/:itemId/status',
   authenticate,
   isValidId('orderId'),
   isValidId('itemId'),
