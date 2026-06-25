@@ -4,8 +4,8 @@ import {
   createOrderService,
   deleteOrderItemService,
   deleteOrderService,
-  getAllOrdersService,
   getOrderItemsService,
+  getOrdersService,
   patchOrderItemService,
   patchOrderService,
   updateOrderItemStatusService,
@@ -14,12 +14,12 @@ import { parseOrderFilterParams } from '../utils/parseFilterParams.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 
-export const getAllOrdersController = async (req, res) => {
+export const getOrdersController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query, ['ep', 'client']);
   const filter = parseOrderFilterParams(req.query);
 
-  const allOrders = await getAllOrdersService({
+  const orders = await getOrdersService({
     page,
     perPage,
     sortBy,
@@ -29,7 +29,7 @@ export const getAllOrdersController = async (req, res) => {
 
   res.status(200).json({
     message: 'Orders found successfully!',
-    data: allOrders,
+    data: orders,
   });
 };
 

@@ -4,7 +4,7 @@ import { SORT_ORDER } from '../constants/constants.js';
 import { ClientsCollection } from '../db/models/clientModel.js';
 import { calculatePaginationData } from '../utils/parsePaginationParams.js';
 
-export const getAllClientsService = async ({
+export const getClientsService = async ({
   page = 1,
   perPage = 20,
   sortOrder = SORT_ORDER.ASC,
@@ -35,10 +35,10 @@ export const getAllClientsService = async ({
   return { clients, ...paginationData };
 };
 
-export const getClientsListService = async () => {
-  const clientsList = await ClientsCollection.find().lean();
+export const getAllClientsService = async () => {
+  const allClients = await ClientsCollection.find().lean();
 
-  return clientsList;
+  return allClients;
 };
 
 export const addNewClientService = async ({ name }) => {

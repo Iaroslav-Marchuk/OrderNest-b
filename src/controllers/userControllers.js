@@ -1,8 +1,8 @@
 import {
   createUserService,
   deleteUserService,
-  getAllUsersService,
   getUserByIdService,
+  getUsersService,
   patchUserService,
   resetUserPasswordService,
 } from '../services/userServices.js';
@@ -10,7 +10,7 @@ import { parseUserFilterParams } from '../utils/parseFilterParams.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 
-export const getAllUsersController = async (req, res) => {
+export const getUsersController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query, [
     'name',
@@ -19,7 +19,7 @@ export const getAllUsersController = async (req, res) => {
   ]);
   const filter = parseUserFilterParams(req.query);
 
-  const allUsers = await getAllUsersService({
+  const users = await getUsersService({
     page,
     perPage,
     sortBy,
@@ -29,7 +29,7 @@ export const getAllUsersController = async (req, res) => {
 
   res.status(200).json({
     message: 'Users found successfully!',
-    data: allUsers,
+    data: users,
   });
 };
 

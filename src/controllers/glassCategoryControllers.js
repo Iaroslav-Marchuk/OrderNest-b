@@ -2,7 +2,7 @@ import {
   addNewGlassCategoryService,
   deleteGlassCategoryService,
   getAllGlassCategoriesService,
-  getGlassCategoriesListService,
+  getGlassCategoriesService,
   patchGlassCategoryService,
 } from '../services/glassCategoryServices.js';
 
@@ -10,7 +10,7 @@ import { parseGlassCategoryFilterParams } from '../utils/parseFilterParams.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 
-export const getAllGlassCategoriesController = async (req, res) => {
+export const getGlassCategoriesController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query, [
     'label',
@@ -19,7 +19,7 @@ export const getAllGlassCategoriesController = async (req, res) => {
 
   const filter = parseGlassCategoryFilterParams(req.query);
 
-  const allGlassCategories = await getAllGlassCategoriesService({
+  const glassCategories = await getGlassCategoriesService({
     page,
     perPage,
     sortBy,
@@ -29,16 +29,16 @@ export const getAllGlassCategoriesController = async (req, res) => {
 
   res.status(200).json({
     message: 'Glass categories found successfully!',
-    data: allGlassCategories,
+    data: glassCategories,
   });
 };
 
-export const getGlassCategoriesListController = async (req, res) => {
-  const glassCategoriesList = await getGlassCategoriesListService();
+export const getAllGlassCategoriesController = async (req, res) => {
+  const allGlassCategories = await getAllGlassCategoriesService();
 
   res.status(200).json({
-    message: 'Glass Categories List found successfully!',
-    data: glassCategoriesList,
+    message: 'All glass categories found successfully!',
+    data: allGlassCategories,
   });
 };
 

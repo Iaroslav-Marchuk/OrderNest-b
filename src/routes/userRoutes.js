@@ -4,8 +4,8 @@ import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import {
   createUserController,
   deleteUserController,
-  getAllUsersController,
   getUserByIdController,
+  getUsersController,
   patchUserController,
   resetUserPasswordController,
 } from '../controllers/userControllers.js';
@@ -24,7 +24,7 @@ router.get(
   '/',
   authenticate,
   checkRole('admin'),
-  ctrlWrapper(getAllUsersController),
+  ctrlWrapper(getUsersController),
 );
 
 router.get(

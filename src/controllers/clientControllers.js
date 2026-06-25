@@ -2,14 +2,14 @@ import {
   addNewClientService,
   deleteClientService,
   getAllClientsService,
-  getClientsListService,
+  getClientsService,
   patchClientService,
 } from '../services/clientServices.js';
 import { parseClientFilterParams } from '../utils/parseFilterParams.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 
-export const getAllClientsController = async (req, res) => {
+export const getClientsController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query, [
     'name',
@@ -17,7 +17,7 @@ export const getAllClientsController = async (req, res) => {
   ]);
   const filter = parseClientFilterParams(req.query);
 
-  const allClients = await getAllClientsService({
+  const clients = await getClientsService({
     page,
     perPage,
     sortBy,
@@ -27,16 +27,16 @@ export const getAllClientsController = async (req, res) => {
 
   res.status(200).json({
     message: 'Clients found successfully!',
-    data: allClients,
+    data: clients,
   });
 };
 
-export const getClientsListController = async (req, res) => {
-  const clientsList = await getClientsListService();
+export const getAllClientsController = async (req, res) => {
+  const allClients = await getAllClientsService();
 
   res.status(200).json({
     message: 'Clients List found successfully!',
-    data: clientsList,
+    data: allClients,
   });
 };
 

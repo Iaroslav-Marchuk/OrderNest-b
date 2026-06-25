@@ -5,7 +5,7 @@ import { OrdersCollection } from '../db/models/orderModel.js';
 import { calculatePaginationData } from '../utils/parsePaginationParams.js';
 import { OrderItemsCollection } from '../db/models/orderItemModel.js';
 
-export const getAllOrdersService = async ({
+export const getOrdersService = async ({
   page = 1,
   perPage = 20,
   sortOrder = SORT_ORDER.ASC,
@@ -50,7 +50,7 @@ export const getAllOrdersService = async ({
 
   const paginationData = calculatePaginationData(ordersCount, page, perPage);
 
-  return { ordersWithCount, ...paginationData };
+  return { orders: ordersWithCount, ...paginationData };
 };
 
 export const checkOrderExistsService = async (ep) => {

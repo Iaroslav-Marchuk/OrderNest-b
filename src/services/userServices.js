@@ -7,7 +7,7 @@ import { SessionsCollection } from '../db/models/sessionModel.js';
 import { SORT_ORDER } from '../constants/constants.js';
 import { calculatePaginationData } from '../utils/parsePaginationParams.js';
 
-export const getAllUsersService = async ({
+export const getUsersService = async ({
   page = 1,
   perPage = 20,
   sortOrder = SORT_ORDER.ASC,

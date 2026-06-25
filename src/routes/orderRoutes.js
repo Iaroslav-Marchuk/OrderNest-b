@@ -7,8 +7,8 @@ import {
   createOrderController,
   deleteOrderController,
   deleteOrderItemController,
-  getAllOrdersController,
   getOrderItemsController,
+  getOrdersController,
   patchOrderController,
   patchOrderItemController,
   updateOrderItemStatusController,
@@ -25,7 +25,7 @@ import {
 
 const router = Router();
 
-router.get('/', authenticate, ctrlWrapper(getAllOrdersController));
+router.get('/', authenticate, ctrlWrapper(getOrdersController));
 
 router.get(
   '/check-ep/:ep',
@@ -95,3 +95,5 @@ router.patch(
   validateBody(updateOrderItemStatusSchema),
   ctrlWrapper(updateOrderItemStatusController),
 );
+
+export default router;

@@ -5,7 +5,7 @@ import { SORT_ORDER } from '../constants/constants.js';
 import { calculatePaginationData } from '../utils/parsePaginationParams.js';
 import { GlassTypesCollection } from '../db/models/glassTypeModel.js';
 
-export const getAllGlassTypesService = async ({
+export const getGlassTypesService = async ({
   page = 1,
   perPage = 20,
   sortOrder = SORT_ORDER.ASC,
@@ -39,12 +39,12 @@ export const getAllGlassTypesService = async ({
   return { glassTypes, ...paginationData };
 };
 
-export const getGlassTypesListService = async () => {
-  const glassTypesList = await GlassTypesCollection.find()
+export const getAllGlassTypesService = async () => {
+  const allGlassTypes = await GlassTypesCollection.find()
     .populate('category', 'label')
     .lean();
 
-  return glassTypesList;
+  return allGlassTypes;
 };
 
 export const addNewGlassTypeService = async ({

@@ -5,20 +5,20 @@ import { isValidId } from '../middlewares/isValidId.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { checkRole } from '../middlewares/checkRole.js';
 
+import { clientSchema } from '../validation/clientValidation.js';
 import {
   addNewClientController,
   deleteClientController,
   getAllClientsController,
-  getClientsListController,
+  getClientsController,
   patchClientController,
 } from '../controllers/clientControllers.js';
-import { clientSchema } from '../validation/clientValidation.js';
 
 const router = Router();
 
-router.get('/', authenticate, ctrlWrapper(getAllClientsController));
+router.get('/', authenticate, ctrlWrapper(getClientsController));
 
-router.get('/list', authenticate, ctrlWrapper(getClientsListController));
+router.get('/all', authenticate, ctrlWrapper(getAllClientsController));
 
 router.post(
   '/',
