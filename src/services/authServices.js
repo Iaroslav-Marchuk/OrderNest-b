@@ -74,7 +74,11 @@ export const refreshSessionService = async (refreshToken) => {
   await SessionsCollection.deleteOne({ refreshToken });
 
   const newAccessToken = jwt.sign(
-    { userId: currentSession.userId, role: user.role, location: null },
+    {
+      userId: currentSession.userId,
+      role: user.role,
+      location: currentSession.location ?? null,
+    },
     JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXP / 1000 },
   );
@@ -85,6 +89,7 @@ export const refreshSessionService = async (refreshToken) => {
     userId: currentSession.userId,
     refreshToken: newRefreshToken,
     refreshTokenValidUntil: new Date(Date.now() + REFRESH_TOKEN_EXP),
+    location: currentSession.location ?? null,
   });
 
   return { accessToken: newAccessToken, refreshToken: newRefreshToken, user };
@@ -150,6 +155,11 @@ export const locationOfUserService = async (userId, location) => {
     { userId: user._id, role: user.role, location },
     JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXP / 1000 },
+  );
+
+  await SessionsCollection.updateOne(
+    { userId: user._id },
+    { $set: { location } },
   );
 
   return { accessToken };

@@ -29,7 +29,7 @@ export const authenticate = async (req, res, next) => {
       return next(createHttpError(403, 'Account is deactivated'));
     }
 
-    req.user = user;
+    req.user = { ...user.toObject(), location: decoded.location };
 
     next();
   } catch {

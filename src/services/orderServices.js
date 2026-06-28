@@ -65,10 +65,13 @@ export const checkOrderExistsService = async (ep) => {
 };
 
 export const createOrderService = async (payload, userId, role, location) => {
-  const { itemsData, ...orderData } = payload;
+  console.log('payload:', payload);
+  console.log('userId:', userId, 'role:', role, 'location:', location);
+  const { items, ...orderData } = payload;
   const orderLocation = role === 'assembly' ? location : role;
+  console.log('orderLocation:', orderLocation);
 
-  const createdItems = await OrderItemsCollection.insertMany(itemsData);
+  const createdItems = await OrderItemsCollection.insertMany(items);
   const itemIds = createdItems.map((item) => item._id);
 
   const newOrder = await OrdersCollection.create({

@@ -22,6 +22,7 @@ import {
   patchOrderSchema,
   updateOrderItemStatusSchema,
 } from '../validation/orderValidation.js';
+import { checkRole } from '../middlewares/checkRole.js';
 
 const router = Router();
 
@@ -36,6 +37,7 @@ router.get(
 router.post(
   '/',
   authenticate,
+  checkRole('hardening', 'assembly', 'quality', 'logistics'),
   validateBody(createOrderSchema),
   ctrlWrapper(createOrderController),
 );

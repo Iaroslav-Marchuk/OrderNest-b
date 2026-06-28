@@ -14,7 +14,7 @@ export const createOrderSchema = Joi.object({
         isTempered: Joi.boolean().required(),
         quantity: Joi.number().integer().positive().min(1).required(),
         reason: Joi.string().max(100).required(),
-        notes: Joi.string().max(100),
+        notes: Joi.string().max(100).allow(''),
       }).required(),
     ),
 });
@@ -32,7 +32,7 @@ export const addItemToOrderOrderSchema = Joi.object({
   isTempered: Joi.boolean().required(),
   quantity: Joi.number().integer().positive().min(1).required(),
   reason: Joi.string().max(100).required(),
-  notes: Joi.string().max(100),
+  notes: Joi.string().max(100).allow(''),
 });
 
 export const patchOrderItemSchema = Joi.object({
