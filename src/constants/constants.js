@@ -10,6 +10,15 @@ export const REFRESH_TOKEN_EXP = 24 * 60 * 60 * 1000;
 
 export const STATUSES = ['created', 'in_progress', 'completed'];
 
+export const LOCATIONS = [
+  'line_1',
+  'line_2',
+  'line_3',
+  'hardening',
+  'quality',
+  'logistics',
+];
+
 // export const SMTP = {
 //   SMTP_HOST: 'SMTP_HOST',
 //   SMTP_PORT: 'SMTP_PORT',

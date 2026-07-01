@@ -43,7 +43,7 @@ export const patchOrderItemSchema = Joi.object({
   isTempered: Joi.boolean(),
   quantity: Joi.number().integer().positive().min(1),
   reason: Joi.string().max(100),
-  notes: Joi.string().max(100),
+  notes: Joi.string().max(100).allow(''),
 });
 
 export const updateOrderItemStatusSchema = Joi.object({

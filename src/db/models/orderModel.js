@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 import { Schema } from 'mongoose';
-import { STATUSES } from '../../constants/constants.js';
+import { LOCATIONS, STATUSES } from '../../constants/constants.js';
 
 const orderSchema = new Schema(
   {
@@ -21,6 +21,7 @@ const orderSchema = new Schema(
     },
     location: {
       type: String,
+      enum: LOCATIONS,
       required: true,
     },
     status: {
