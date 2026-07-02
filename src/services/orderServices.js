@@ -138,7 +138,7 @@ export const getOrderItemsService = async (orderId) => {
     _id: { $in: existOrder.items },
   })
 
-    .populate('type', 'label')
+    .populate('type', 'label temper')
     .lean();
 
   return items;
