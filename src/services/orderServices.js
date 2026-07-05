@@ -1,9 +1,10 @@
 import createHttpError from 'http-errors';
 
-import { SORT_ORDER } from '../constants/constants.js';
+import { SORT_ORDER, STATUSES } from '../constants/constants.js';
 import { OrdersCollection } from '../db/models/orderModel.js';
 import { calculatePaginationData } from '../utils/parsePaginationParams.js';
 import { OrderItemsCollection } from '../db/models/orderItemModel.js';
+import { getNextStatus } from '../utils/getNextStatus.js';
 
 export const getOrdersService = async ({
   page = 1,
@@ -81,35 +82,43 @@ export const createOrderService = async (payload, userId, role, location) => {
   return { order: newOrder };
 };
 
-export const patchOrderService = async (orderId, updateData) => {
+export const patchOrderService = async (orderId, updateData, currentUser) => {
   const existOrder = await OrdersCollection.findById(orderId);
   if (!existOrder) throw createHttpError(404, 'Order not found!');
 
-  const hasActiveItems = await OrderItemsCollection.exists({
-    _id: { $in: existOrder.items },
-    status: { $in: ['in_progress', 'completed'] },
-  });
-
-  if (hasActiveItems)
+  if (existOrder.status !== 'created') {
     throw createHttpError(
       403,
-      "Can't edit order with item status 'In progress' or 'Completed'",
+      "Can't edit order that already started production",
     );
+  }
+
+  if (existOrder.owner.toString() !== currentUser._id.toString()) {
+    throw createHttpError(403, 'You can update only your own orders!');
+  }
 
   const updatedOrder = await OrdersCollection.findByIdAndUpdate(
     orderId,
     updateData,
-    {
-      new: true,
-      runValidators: true,
-    },
+    { new: true, runValidators: true },
   );
   return updatedOrder;
 };
 
-export const addItemToOrderService = async (orderId, newItem) => {
+export const addItemToOrderService = async (orderId, newItem, currentUser) => {
   const existOrder = await OrdersCollection.findById(orderId);
   if (!existOrder) throw createHttpError(404, 'Order not found!');
+
+  if (existOrder.status !== 'created') {
+    throw createHttpError(
+      403,
+      "Can't add items to an order that already started production",
+    );
+  }
+
+  if (existOrder.owner.toString() !== currentUser._id.toString()) {
+    throw createHttpError(403, 'You can add new item only to your own orders!');
+  }
 
   const createdItem = await OrderItemsCollection.create(newItem);
 
@@ -120,11 +129,21 @@ export const addItemToOrderService = async (orderId, newItem) => {
   return createdItem;
 };
 
-export const deleteOrderService = async (orderId) => {
+export const deleteOrderService = async (orderId, currentUser) => {
   const existOrder = await OrdersCollection.findById(orderId);
-  if (!existOrder) {
-    throw createHttpError(404, 'Order not found!');
+  if (!existOrder) throw createHttpError(404, 'Order not found!');
+
+  if (existOrder.status !== 'created') {
+    throw createHttpError(
+      403,
+      "Can't delete order that already started production",
+    );
   }
+
+  if (existOrder.owner.toString() !== currentUser._id.toString()) {
+    throw createHttpError(403, 'You can delete only your own orders!');
+  }
+
   await OrderItemsCollection.deleteMany({ _id: { $in: existOrder.items } });
   await OrdersCollection.findByIdAndDelete(orderId);
   return existOrder;
@@ -144,18 +163,27 @@ export const getOrderItemsService = async (orderId) => {
   return items;
 };
 
-export const patchOrderItemService = async (orderId, itemId, updateData) => {
+export const patchOrderItemService = async (
+  orderId,
+  itemId,
+  updateData,
+  currentUser,
+) => {
   const existOrder = await OrdersCollection.findById(orderId);
   if (!existOrder) throw createHttpError(404, 'Order not found!');
 
   const existItem = await OrderItemsCollection.findById(itemId);
   if (!existItem) throw createHttpError(404, 'Item not found');
 
-  if (existItem.status !== 'created') {
+  if (existOrder.status !== 'created') {
     throw createHttpError(
       403,
-      "Can't edit item with status other than 'Created'",
+      "Can't edit items in an order that already started production",
     );
+  }
+
+  if (existOrder.owner.toString() !== currentUser._id.toString()) {
+    throw createHttpError(403, 'You can update only your own orders!');
   }
 
   const updatedItem = await OrderItemsCollection.findByIdAndUpdate(
@@ -167,18 +195,22 @@ export const patchOrderItemService = async (orderId, itemId, updateData) => {
   return updatedItem;
 };
 
-export const deleteOrderItemService = async (orderId, itemId) => {
+export const deleteOrderItemService = async (orderId, itemId, currentUser) => {
   const existOrder = await OrdersCollection.findById(orderId);
   if (!existOrder) throw createHttpError(404, 'Order not found!');
 
   const existItem = await OrderItemsCollection.findById(itemId);
   if (!existItem) throw createHttpError(404, 'Item not found');
 
-  if (existItem.status !== 'created') {
+  if (existOrder.status !== 'created') {
     throw createHttpError(
       403,
-      "Can't edit item with status other than 'Created'",
+      "Can't delete items from an order that already started production",
     );
+  }
+
+  if (existOrder.owner.toString() !== currentUser._id.toString()) {
+    throw createHttpError(403, 'You can delete only your own order items!');
   }
 
   await OrderItemsCollection.findByIdAndDelete(itemId);
@@ -197,12 +229,37 @@ export const deleteOrderItemService = async (orderId, itemId) => {
   return { updatedOrder, deletedItemId: itemId };
 };
 
-export const updateOrderItemStatusService = async (orderId, itemId, status) => {
+export const updateOrderItemStatusService = async (
+  orderId,
+  itemId,
+  status,
+  currentUser,
+) => {
   const existOrder = await OrdersCollection.findById(orderId);
   if (!existOrder) throw createHttpError(404, 'Order not found!');
 
   const existItem = await OrderItemsCollection.findById(itemId);
   if (!existItem) throw createHttpError(404, 'Item not found!');
+
+  if (!STATUSES.includes(status)) {
+    throw createHttpError(400, 'Invalid status value!');
+  }
+
+  const expectedNext = getNextStatus(existItem.status);
+  if (status !== expectedNext) {
+    throw createHttpError(
+      400,
+      `Cannot change status from ${existItem.status} to ${status}!`,
+    );
+  }
+
+  if (status === 'in_progress' && currentUser.role !== 'cutting') {
+    throw createHttpError(403, 'Only cutting can start this item!');
+  }
+
+  if (status === 'completed' && currentUser.role !== 'assembly') {
+    throw createHttpError(403, 'Only assembly can complete this item!');
+  }
 
   const updatedItem = await OrderItemsCollection.findByIdAndUpdate(
     itemId,

@@ -45,7 +45,7 @@ export const checkOrderExistsController = async (req, res) => {
 
 export const createOrderController = async (req, res) => {
   const { _id: userId, role, location } = req.user;
-  const order = await createOrderService(req.body, userId, role, location);
+  const { order } = await createOrderService(req.body, userId, role, location);
 
   res.status(201).json({
     message: 'New order created successfully!',
@@ -56,7 +56,7 @@ export const createOrderController = async (req, res) => {
 export const patchOrderController = async (req, res) => {
   const { orderId } = req.params;
 
-  const updatedOrder = await patchOrderService(orderId, req.body);
+  const updatedOrder = await patchOrderService(orderId, req.body, req.user);
 
   res.status(200).json({
     message: 'Order updated successfully!',
@@ -67,7 +67,7 @@ export const patchOrderController = async (req, res) => {
 export const addItemToOrderController = async (req, res) => {
   const { orderId } = req.params;
 
-  const createdItem = await addItemToOrderService(orderId, req.body);
+  const createdItem = await addItemToOrderService(orderId, req.body, req.user);
 
   res.status(201).json({
     message: 'New item added successfully!',
@@ -78,7 +78,7 @@ export const addItemToOrderController = async (req, res) => {
 export const deleteOrderController = async (req, res) => {
   const { orderId } = req.params;
 
-  await deleteOrderService(orderId);
+  await deleteOrderService(orderId, req.user);
 
   res.status(204).end();
 };
@@ -97,7 +97,12 @@ export const getOrderItemsController = async (req, res) => {
 export const patchOrderItemController = async (req, res) => {
   const { orderId, itemId } = req.params;
 
-  const updatedItem = await patchOrderItemService(orderId, itemId, req.body);
+  const updatedItem = await patchOrderItemService(
+    orderId,
+    itemId,
+    req.body,
+    req.user,
+  );
 
   res.status(200).json({
     message: 'Order item updated successfully!',
@@ -107,7 +112,7 @@ export const patchOrderItemController = async (req, res) => {
 
 export const deleteOrderItemController = async (req, res) => {
   const { orderId, itemId } = req.params;
-  const result = await deleteOrderItemService(orderId, itemId);
+  const result = await deleteOrderItemService(orderId, itemId, req.user);
   res.status(200).json({
     message: 'Item deleted successfully!',
     data: result,
@@ -118,14 +123,15 @@ export const updateOrderItemStatusController = async (req, res) => {
   const { orderId, itemId } = req.params;
   const { status } = req.body;
 
-  const updatedStatus = await updateOrderItemStatusService(
+  const updatedItem = await updateOrderItemStatusService(
     orderId,
     itemId,
     status,
+    req.user,
   );
 
   res.status(200).json({
     message: 'Order item status updated successfully!',
-    data: { updatedStatus },
+    data: { updatedItem },
   });
 };

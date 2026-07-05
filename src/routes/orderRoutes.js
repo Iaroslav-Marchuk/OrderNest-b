@@ -45,6 +45,7 @@ router.post(
 router.patch(
   '/:orderId',
   authenticate,
+  checkRole('hardening', 'assembly', 'quality', 'logistics'),
   isValidId('orderId'),
   validateBody(patchOrderSchema),
   ctrlWrapper(patchOrderController),
@@ -53,6 +54,7 @@ router.patch(
 router.post(
   '/:orderId/items',
   authenticate,
+  checkRole('hardening', 'assembly', 'quality', 'logistics'),
   isValidId('orderId'),
   validateBody(addItemToOrderOrderSchema),
   ctrlWrapper(addItemToOrderController),
@@ -61,6 +63,7 @@ router.post(
 router.delete(
   '/:orderId',
   authenticate,
+  checkRole('hardening', 'assembly', 'quality', 'logistics'),
   isValidId('orderId'),
   ctrlWrapper(deleteOrderController),
 );
@@ -75,6 +78,7 @@ router.get(
 router.patch(
   '/:orderId/items/:itemId',
   authenticate,
+  checkRole('hardening', 'assembly', 'quality', 'logistics'),
   isValidId('orderId'),
   isValidId('itemId'),
   validateBody(patchOrderItemSchema),
@@ -84,6 +88,7 @@ router.patch(
 router.delete(
   '/:orderId/items/:itemId',
   authenticate,
+  checkRole('hardening', 'assembly', 'quality', 'logistics'),
   isValidId('orderId'),
   isValidId('itemId'),
   ctrlWrapper(deleteOrderItemController),
@@ -92,6 +97,7 @@ router.delete(
 router.patch(
   '/:orderId/items/:itemId/status',
   authenticate,
+  checkRole('cutting', 'assembly'),
   isValidId('orderId'),
   isValidId('itemId'),
   validateBody(updateOrderItemStatusSchema),

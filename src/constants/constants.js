@@ -19,6 +19,16 @@ export const LOCATIONS = [
   'logistics',
 ];
 
+export const ROLES = [
+  'admin',
+  'cutting',
+  'hardening',
+  'assembly',
+  'quality',
+  'logistics',
+  'guest',
+];
+
 // export const SMTP = {
 //   SMTP_HOST: 'SMTP_HOST',
 //   SMTP_PORT: 'SMTP_PORT',

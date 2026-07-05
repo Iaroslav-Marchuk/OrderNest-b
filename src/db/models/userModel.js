@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { ROLES } from '../../constants/constants.js';
 
 const userSchema = new Schema(
   {
@@ -17,15 +18,7 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: [
-        'admin',
-        'cutting',
-        'hardening',
-        'assembly',
-        'quality',
-        'logistics',
-        'guest',
-      ],
+      enum: ROLES,
       default: 'guest',
     },
     telegramChatId: {

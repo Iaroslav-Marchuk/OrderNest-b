@@ -141,9 +141,11 @@ export const changePasswordService = async (userId, oldPass, newPass) => {
   };
 };
 
-export const locationOfUserService = async (userId, location) => {
+export const changeLocationService = async (userId, location) => {
   const user = await UsersCollection.findById(userId);
-  if (!user) throw createHttpError(404, 'User not found!');
+  if (!user) {
+    throw createHttpError(404, 'User not found!');
+  }
   if (user.role !== 'assembly')
     throw createHttpError(403, 'Only assembly users can set location!');
 

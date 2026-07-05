@@ -13,6 +13,6 @@ export const changePasswordSchema = Joi.object({
   newPass: Joi.string().trim().min(6).max(16).required(),
 });
 
-export const locationOfUserSchema = Joi.object({
+export const changeLocationSchema = Joi.object({
   location: Joi.string().valid('line_1', 'line_2', 'line_3').required(),
 });

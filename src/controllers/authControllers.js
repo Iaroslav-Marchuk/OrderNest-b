@@ -1,9 +1,9 @@
 import { REFRESH_TOKEN_EXP } from '../constants/constants.js';
 
 import {
+  changeLocationService,
   changePasswordService,
   getCurrentUserService,
-  locationOfUserService,
   loginUserService,
   logoutUserService,
   refreshSessionService,
@@ -101,14 +101,14 @@ export const changePasswordController = async (req, res) => {
   });
 };
 
-export const locationOfUserController = async (req, res) => {
+export const changeLocationController = async (req, res) => {
   const userId = req.user._id;
   const { location } = req.body;
 
-  const { accessToken } = await locationOfUserService(userId, location);
+  const { accessToken } = await changeLocationService(userId, location);
 
   res.status(200).json({
-    message: 'User is successfully logged in!',
+    message: 'Location updated successfully!',
     data: { accessToken },
   });
 };

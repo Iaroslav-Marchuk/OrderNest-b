@@ -2,14 +2,14 @@ import { Router } from 'express';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import {
+  changeLocationSchema,
   changePasswordSchema,
-  locationOfUserSchema,
   loginUserSchema,
 } from '../validation/authValidation.js';
 import {
+  changeLocationController,
   changePasswordController,
   getCurrentUserController,
-  locationOfUserController,
   loginUserController,
   logoutUserController,
   refreshSessionController,
@@ -37,11 +37,11 @@ router.patch(
   ctrlWrapper(changePasswordController),
 );
 
-router.post(
+router.patch(
   '/setLocation',
   authenticate,
-  validateBody(locationOfUserSchema),
-  ctrlWrapper(locationOfUserController),
+  validateBody(changeLocationSchema),
+  ctrlWrapper(changeLocationController),
 );
 
 export default router;
