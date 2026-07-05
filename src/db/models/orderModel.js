@@ -43,4 +43,7 @@ const orderSchema = new Schema(
   },
 );
 
+orderSchema.index({ status: 1, createdAt: -1 });
+orderSchema.index({ status: 1, updatedAt: -1 });
+
 export const OrdersCollection = mongoose.model('Orders', orderSchema);

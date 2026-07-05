@@ -12,6 +12,8 @@ export const getOrdersService = async ({
   sortOrder = SORT_ORDER.ASC,
   sortBy = 'createdAt',
   filter = {},
+  dateField = 'createdAt',
+  defaultRangeDays = 1,
 }) => {
   const limit = perPage;
   const skip = (page - 1) * perPage;
@@ -23,12 +25,18 @@ export const getOrdersService = async ({
   if (filter.location) mongoFilter.location = filter.location;
 
   if (!filter.ep && !filter.client) {
-    const dateStr = filter.date || new Date().toISOString().split('T')[0];
-    const start = new Date(dateStr);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(dateStr);
-    end.setHours(23, 59, 59, 999);
-    mongoFilter.createdAt = { $gte: start, $lte: end };
+    if (filter.date) {
+      const start = new Date(`${filter.date}T00:00:00.000Z`);
+      const end = new Date(`${filter.date}T23:59:59.999Z`);
+      mongoFilter[dateField] = { $gte: start, $lte: end };
+    } else {
+      const end = new Date();
+      end.setUTCHours(23, 59, 59, 999);
+      const start = new Date();
+      start.setUTCDate(start.getUTCDate() - (defaultRangeDays - 1));
+      start.setUTCHours(0, 0, 0, 0);
+      mongoFilter[dateField] = { $gte: start, $lte: end };
+    }
   }
 
   const ordersCount = await OrdersCollection.countDocuments(mongoFilter);

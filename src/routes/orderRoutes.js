@@ -7,6 +7,7 @@ import {
   createOrderController,
   deleteOrderController,
   deleteOrderItemController,
+  getArchivedOrdersController,
   getOrderItemsController,
   getOrdersController,
   patchOrderController,
@@ -27,6 +28,7 @@ import { checkRole } from '../middlewares/checkRole.js';
 const router = Router();
 
 router.get('/', authenticate, ctrlWrapper(getOrdersController));
+router.get('/archive', authenticate, ctrlWrapper(getArchivedOrdersController));
 
 router.get(
   '/check-ep/:ep',

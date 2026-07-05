@@ -19,18 +19,44 @@ export const getOrdersController = async (req, res) => {
   const { sortBy, sortOrder } = parseSortParams(req.query, ['ep', 'client']);
   const filter = parseOrderFilterParams(req.query);
 
+  filter.status = { $ne: 'completed' };
+
   const orders = await getOrdersService({
     page,
     perPage,
     sortBy,
     sortOrder,
     filter,
+    dateField: 'createdAt',
+    defaultRangeDays: 1,
   });
 
   res.status(200).json({
     message: 'Orders found successfully!',
     data: orders,
   });
+};
+
+export const getArchivedOrdersController = async (req, res) => {
+  const { page, perPage } = parsePaginationParams(req.query);
+  const { sortBy, sortOrder } = parseSortParams(req.query, ['ep', 'client']);
+  const filter = parseOrderFilterParams(req.query);
+
+  filter.status = 'completed';
+
+  const orders = await getOrdersService({
+    page,
+    perPage,
+    sortBy: sortBy ?? 'updatedAt',
+    sortOrder: sortOrder ?? 'desc',
+    filter,
+    dateField: 'updatedAt',
+    defaultRangeDays: 7,
+  });
+
+  res
+    .status(200)
+    .json({ message: 'Archived orders found successfully!', data: orders });
 };
 
 export const checkOrderExistsController = async (req, res) => {
