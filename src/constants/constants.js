@@ -29,6 +29,8 @@ export const ROLES = [
   'guest',
 ];
 
+export const MIN_DAYS_BEFORE_MANUAL_DELETE = 45;
+
 // export const SMTP = {
 //   SMTP_HOST: 'SMTP_HOST',
 //   SMTP_PORT: 'SMTP_PORT',

@@ -1,7 +1,9 @@
 import {
   addItemToOrderService,
   checkOrderExistsService,
+  clearArchiveService,
   createOrderService,
+  deleteArchivedOrderService,
   deleteOrderItemService,
   deleteOrderService,
   getOrderItemsService,
@@ -47,10 +49,10 @@ export const getArchivedOrdersController = async (req, res) => {
   const orders = await getOrdersService({
     page,
     perPage,
-    sortBy: sortBy ?? 'updatedAt',
+    sortBy: sortBy ?? 'completedAt',
     sortOrder: sortOrder ?? 'desc',
     filter,
-    dateField: 'updatedAt',
+    dateField: 'completedAt',
     defaultRangeDays: 7,
   });
 
@@ -159,5 +161,27 @@ export const updateOrderItemStatusController = async (req, res) => {
   res.status(200).json({
     message: 'Order item status updated successfully!',
     data: { updatedItem },
+  });
+};
+
+export const clearArchiveController = async (req, res) => {
+  const result = await clearArchiveService();
+
+  res.status(200).json({
+    message:
+      result.deletedOrders > 0
+        ? 'Archive cleared successfully!'
+        : 'Archive is already empty.',
+    data: result,
+  });
+};
+
+export const deleteArchivedOrderController = async (req, res) => {
+  const { orderId } = req.params;
+  const result = await deleteArchivedOrderService(orderId);
+
+  res.status(200).json({
+    message: 'Order deleted successfully!',
+    data: result,
   });
 };

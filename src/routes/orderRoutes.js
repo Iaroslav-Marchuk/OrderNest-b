@@ -4,7 +4,9 @@ import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import {
   addItemToOrderController,
   checkOrderExistsController,
+  clearArchiveController,
   createOrderController,
+  deleteArchivedOrderController,
   deleteOrderController,
   deleteOrderItemController,
   getArchivedOrdersController,
@@ -30,12 +32,26 @@ const router = Router();
 router.get('/', authenticate, ctrlWrapper(getOrdersController));
 router.get('/archive', authenticate, ctrlWrapper(getArchivedOrdersController));
 
+router.delete(
+  '/archive',
+  authenticate,
+  checkRole('admin'),
+  ctrlWrapper(clearArchiveController),
+);
+
+router.delete(
+  '/archive/:orderId',
+  authenticate,
+  checkRole('admin'),
+  isValidId('orderId'),
+  ctrlWrapper(deleteArchivedOrderController),
+);
+
 router.get(
   '/check-ep/:ep',
   authenticate,
   ctrlWrapper(checkOrderExistsController),
 );
-
 router.post(
   '/',
   authenticate,
@@ -43,7 +59,6 @@ router.post(
   validateBody(createOrderSchema),
   ctrlWrapper(createOrderController),
 );
-
 router.patch(
   '/:orderId',
   authenticate,
@@ -52,7 +67,6 @@ router.patch(
   validateBody(patchOrderSchema),
   ctrlWrapper(patchOrderController),
 );
-
 router.post(
   '/:orderId/items',
   authenticate,
@@ -61,7 +75,6 @@ router.post(
   validateBody(addItemToOrderOrderSchema),
   ctrlWrapper(addItemToOrderController),
 );
-
 router.delete(
   '/:orderId',
   authenticate,
@@ -69,14 +82,12 @@ router.delete(
   isValidId('orderId'),
   ctrlWrapper(deleteOrderController),
 );
-
 router.get(
   '/:orderId/items',
   authenticate,
   isValidId('orderId'),
   ctrlWrapper(getOrderItemsController),
 );
-
 router.patch(
   '/:orderId/items/:itemId',
   authenticate,
@@ -86,7 +97,6 @@ router.patch(
   validateBody(patchOrderItemSchema),
   ctrlWrapper(patchOrderItemController),
 );
-
 router.delete(
   '/:orderId/items/:itemId',
   authenticate,
@@ -95,7 +105,6 @@ router.delete(
   isValidId('itemId'),
   ctrlWrapper(deleteOrderItemController),
 );
-
 router.patch(
   '/:orderId/items/:itemId/status',
   authenticate,

@@ -1,6 +1,10 @@
 import createHttpError from 'http-errors';
 
-import { SORT_ORDER, STATUSES } from '../constants/constants.js';
+import {
+  MIN_DAYS_BEFORE_MANUAL_DELETE,
+  SORT_ORDER,
+  STATUSES,
+} from '../constants/constants.js';
 import { OrdersCollection } from '../db/models/orderModel.js';
 import { calculatePaginationData } from '../utils/parsePaginationParams.js';
 import { OrderItemsCollection } from '../db/models/orderItemModel.js';
@@ -295,7 +299,65 @@ export const updateOrderItemStatusService = async (
       ? 'in_progress'
       : 'created';
 
+  const orderUpdate = { status: newOrderStatus };
+  orderUpdate.completedAt = newOrderStatus === 'completed' ? new Date() : null;
+
   await OrdersCollection.findByIdAndUpdate(orderId, { status: newOrderStatus });
 
   return updatedItem;
+};
+
+export const clearArchiveService = async () => {
+  const orders = await OrdersCollection.find({ status: 'completed' })
+    .select('_id items')
+    .lean();
+
+  if (orders.length === 0) {
+    return { deletedOrders: 0, deletedItems: 0 };
+  }
+
+  const orderIds = orders.map((order) => order._id);
+  const itemIds = orders.flatMap((order) => order.items);
+
+  const itemsResult = await OrderItemsCollection.deleteMany({
+    _id: { $in: itemIds },
+  });
+  const ordersResult = await OrdersCollection.deleteMany({
+    _id: { $in: orderIds },
+  });
+
+  return {
+    deletedOrders: ordersResult.deletedCount,
+    deletedItems: itemsResult.deletedCount,
+  };
+};
+
+export const deleteArchivedOrderService = async (orderId) => {
+  const existOrder = await OrdersCollection.findById(orderId);
+
+  if (!existOrder) {
+    throw createHttpError(404, 'Order not found!');
+  }
+
+  if (existOrder.status !== 'completed') {
+    throw createHttpError(
+      403,
+      'Only completed orders can be deleted from archive',
+    );
+  }
+
+  const daysSinceCompleted =
+    (Date.now() - existOrder.completedAt.getTime()) / (24 * 60 * 60 * 1000);
+
+  if (daysSinceCompleted < MIN_DAYS_BEFORE_MANUAL_DELETE) {
+    throw createHttpError(
+      403,
+      `Order can only be deleted ${MIN_DAYS_BEFORE_MANUAL_DELETE} days after completion (currently ${Math.floor(daysSinceCompleted)} days)`,
+    );
+  }
+
+  await OrderItemsCollection.deleteMany({ _id: { $in: existOrder.items } });
+  await OrdersCollection.findByIdAndDelete(orderId);
+
+  return existOrder;
 };
