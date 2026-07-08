@@ -3,12 +3,11 @@ import createHttpError from 'http-errors';
 import {
   MIN_DAYS_BEFORE_MANUAL_DELETE,
   SORT_ORDER,
-  STATUSES,
 } from '../constants/constants.js';
 import { OrdersCollection } from '../db/models/orderModel.js';
 import { calculatePaginationData } from '../utils/parsePaginationParams.js';
 import { OrderItemsCollection } from '../db/models/orderItemModel.js';
-import { getNextStatus } from '../utils/getNextStatus.js';
+import { recalculateOrderStatus } from '../utils/recalculateOrderStatus.js';
 
 export const getOrdersService = async ({
   page = 1,
@@ -56,9 +55,10 @@ export const getOrdersService = async ({
 
   const ordersWithCount = orders.map((order) => ({
     ...order,
-    itemsPendingCount: order.items.filter((item) => item.status !== 'completed')
-      .length,
-    itemsCount: order.items.length,
+    itemsPendingCount: order.items.filter(
+      (item) => item.status !== 'completed' && item.status !== 'rejected',
+    ).length,
+    itemsCount: order.items.filter((item) => item.status !== 'rejected').length,
   }));
 
   const paginationData = calculatePaginationData(ordersCount, page, perPage);
@@ -241,10 +241,36 @@ export const deleteOrderItemService = async (orderId, itemId, currentUser) => {
   return { updatedOrder, deletedItemId: itemId };
 };
 
-export const updateOrderItemStatusService = async (
+export const startOrderItemService = async (orderId, itemId, currentUser) => {
+  const existOrder = await OrdersCollection.findById(orderId);
+  if (!existOrder) throw createHttpError(404, 'Order not found!');
+
+  const existItem = await OrderItemsCollection.findById(itemId);
+  if (!existItem) throw createHttpError(404, 'Item not found!');
+
+  if (existItem.status !== 'created') {
+    throw createHttpError(
+      400,
+      `Cannot start item with status ${existItem.status}!`,
+    );
+  }
+  if (currentUser.role !== 'cutting') {
+    throw createHttpError(403, 'Only cutting can start this item!');
+  }
+
+  const updatedItem = await OrderItemsCollection.findByIdAndUpdate(
+    itemId,
+    { status: 'in_progress' },
+    { new: true, runValidators: true },
+  );
+
+  await recalculateOrderStatus(existOrder);
+  return updatedItem;
+};
+
+export const completeOrderItemService = async (
   orderId,
   itemId,
-  status,
   currentUser,
 ) => {
   const existOrder = await OrdersCollection.findById(orderId);
@@ -253,56 +279,74 @@ export const updateOrderItemStatusService = async (
   const existItem = await OrderItemsCollection.findById(itemId);
   if (!existItem) throw createHttpError(404, 'Item not found!');
 
-  if (!STATUSES.includes(status)) {
-    throw createHttpError(400, 'Invalid status value!');
-  }
-
-  const expectedNext = getNextStatus(existItem.status);
-  if (status !== expectedNext) {
+  if (existItem.status !== 'in_progress') {
     throw createHttpError(
       400,
-      `Cannot change status from ${existItem.status} to ${status}!`,
+      `Cannot complete item with status ${existItem.status}!`,
     );
   }
-
-  if (status === 'in_progress' && currentUser.role !== 'cutting') {
-    throw createHttpError(403, 'Only cutting can start this item!');
-  }
-
-  if (status === 'completed' && currentUser.role !== 'assembly') {
+  if (currentUser.role !== 'assembly') {
     throw createHttpError(403, 'Only assembly can complete this item!');
+  }
+  if (!currentUser.location) {
+    throw createHttpError(400, 'Please select your production line first!');
   }
 
   const updatedItem = await OrderItemsCollection.findByIdAndUpdate(
     itemId,
-    { status },
+    {
+      status: 'completed',
+      completed: {
+        by: currentUser._id,
+        at: new Date(),
+        location: currentUser.location,
+      },
+    },
     { new: true, runValidators: true },
   );
 
-  const allItems = await OrderItemsCollection.find({
-    _id: { $in: existOrder.items },
+  await recalculateOrderStatus(existOrder);
+  return updatedItem;
+};
+
+export const rejectOrderItemService = async (orderId, itemId, currentUser) => {
+  const existOrder = await OrdersCollection.findById(orderId);
+  if (!existOrder) throw createHttpError(404, 'Order not found!');
+
+  const existItem = await OrderItemsCollection.findById(itemId);
+  if (!existItem) throw createHttpError(404, 'Item not found!');
+
+  if (existItem.status !== 'in_progress') {
+    throw createHttpError(
+      400,
+      `Cannot reject item with status ${existItem.status}!`,
+    );
+  }
+  if (currentUser.role !== 'assembly') {
+    throw createHttpError(403, 'Only assembly can reject this item!');
+  }
+
+  const updatedItem = await OrderItemsCollection.findByIdAndUpdate(
+    itemId,
+    { status: 'rejected' },
+    { new: true, runValidators: true },
+  );
+
+  const reworkItem = await OrderItemsCollection.create({
+    type: existItem.type,
+    sizeX: existItem.sizeX,
+    sizeY: existItem.sizeY,
+    thickness: existItem.thickness,
+    isTempered: existItem.isTempered,
+    quantity: existItem.quantity,
+    reason: 'Rework, glass is not at conditions',
+    notes: existItem.notes,
+    status: 'created',
   });
 
-  const itemsWithUpdatedStatus = allItems.map((item) =>
-    item._id.toString() === itemId ? { ...item.toObject(), status } : item,
-  );
-
-  const allCompleted = itemsWithUpdatedStatus.every(
-    (item) => item.status === 'completed',
-  );
-  const anyInProgress = itemsWithUpdatedStatus.some(
-    (item) => item.status === 'in_progress' || item.status === 'completed',
-  );
-  const newOrderStatus = allCompleted
-    ? 'completed'
-    : anyInProgress
-      ? 'in_progress'
-      : 'created';
-
-  const orderUpdate = { status: newOrderStatus };
-  orderUpdate.completedAt = newOrderStatus === 'completed' ? new Date() : null;
-
-  await OrdersCollection.findByIdAndUpdate(orderId, { status: newOrderStatus });
+  existOrder.items.push(reworkItem._id);
+  await existOrder.save();
+  await recalculateOrderStatus(existOrder);
 
   return updatedItem;
 };
@@ -347,7 +391,7 @@ export const deleteArchivedOrderService = async (orderId) => {
   }
 
   const daysSinceCompleted =
-    (Date.now() - existOrder.completedAt.getTime()) / (24 * 60 * 60 * 1000);
+    (Date.now() - existOrder.updatedAt.getTime()) / (24 * 60 * 60 * 1000);
 
   if (daysSinceCompleted < MIN_DAYS_BEFORE_MANUAL_DELETE) {
     throw createHttpError(

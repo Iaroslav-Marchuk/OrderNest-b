@@ -2,6 +2,7 @@ import {
   addItemToOrderService,
   checkOrderExistsService,
   clearArchiveService,
+  completeOrderItemService,
   createOrderService,
   deleteArchivedOrderService,
   deleteOrderItemService,
@@ -10,7 +11,8 @@ import {
   getOrdersService,
   patchOrderItemService,
   patchOrderService,
-  updateOrderItemStatusService,
+  rejectOrderItemService,
+  startOrderItemService,
 } from '../services/orderServices.js';
 import { parseOrderFilterParams } from '../utils/parseFilterParams.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
@@ -49,10 +51,10 @@ export const getArchivedOrdersController = async (req, res) => {
   const orders = await getOrdersService({
     page,
     perPage,
-    sortBy: sortBy ?? 'completedAt',
+    sortBy: sortBy ?? 'updatedAt',
     sortOrder: sortOrder ?? 'desc',
     filter,
-    dateField: 'completedAt',
+    dateField: 'updatedAt',
     defaultRangeDays: 7,
   });
 
@@ -147,19 +149,35 @@ export const deleteOrderItemController = async (req, res) => {
   });
 };
 
-export const updateOrderItemStatusController = async (req, res) => {
+export const startOrderItemController = async (req, res) => {
   const { orderId, itemId } = req.params;
-  const { status } = req.body;
 
-  const updatedItem = await updateOrderItemStatusService(
-    orderId,
-    itemId,
-    status,
-    req.user,
-  );
+  const updatedItem = await startOrderItemService(orderId, itemId, req.user);
 
   res.status(200).json({
-    message: 'Order item status updated successfully!',
+    message: 'Item started successfully!',
+    data: { updatedItem },
+  });
+};
+
+export const completeOrderItemController = async (req, res) => {
+  const { orderId, itemId } = req.params;
+
+  const updatedItem = await completeOrderItemService(orderId, itemId, req.user);
+
+  res.status(200).json({
+    message: 'Item completed successfully!',
+    data: { updatedItem },
+  });
+};
+
+export const rejectOrderItemController = async (req, res) => {
+  const { orderId, itemId } = req.params;
+
+  const updatedItem = await rejectOrderItemService(orderId, itemId, req.user);
+
+  res.status(200).json({
+    message: 'Item rejected successfully!',
     data: { updatedItem },
   });
 };

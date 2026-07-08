@@ -5,6 +5,7 @@ import {
   addItemToOrderController,
   checkOrderExistsController,
   clearArchiveController,
+  completeOrderItemController,
   createOrderController,
   deleteArchivedOrderController,
   deleteOrderController,
@@ -14,7 +15,8 @@ import {
   getOrdersController,
   patchOrderController,
   patchOrderItemController,
-  updateOrderItemStatusController,
+  rejectOrderItemController,
+  startOrderItemController,
 } from '../controllers/orderControllers.js';
 import { isValidId } from '../middlewares/isValidId.js';
 import { validateBody } from '../middlewares/validateBody.js';
@@ -23,7 +25,6 @@ import {
   createOrderSchema,
   patchOrderItemSchema,
   patchOrderSchema,
-  updateOrderItemStatusSchema,
 } from '../validation/orderValidation.js';
 import { checkRole } from '../middlewares/checkRole.js';
 
@@ -105,14 +106,32 @@ router.delete(
   isValidId('itemId'),
   ctrlWrapper(deleteOrderItemController),
 );
+
 router.patch(
-  '/:orderId/items/:itemId/status',
+  '/:orderId/items/:itemId/start',
   authenticate,
-  checkRole('cutting', 'assembly'),
+  checkRole('cutting'),
   isValidId('orderId'),
   isValidId('itemId'),
-  validateBody(updateOrderItemStatusSchema),
-  ctrlWrapper(updateOrderItemStatusController),
+  ctrlWrapper(startOrderItemController),
+);
+
+router.patch(
+  '/:orderId/items/:itemId/complete',
+  authenticate,
+  checkRole('assembly'),
+  isValidId('orderId'),
+  isValidId('itemId'),
+  ctrlWrapper(completeOrderItemController),
+);
+
+router.patch(
+  '/:orderId/items/:itemId/reject',
+  authenticate,
+  checkRole('assembly'),
+  isValidId('orderId'),
+  isValidId('itemId'),
+  ctrlWrapper(rejectOrderItemController),
 );
 
 export default router;

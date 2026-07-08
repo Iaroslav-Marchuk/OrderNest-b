@@ -23,6 +23,21 @@ const orderItemSchema = new Schema(
       required: true,
       default: 'created',
     },
+
+    completed: {
+      _id: false,
+      by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
+        default: null,
+      },
+      at: { type: Date, default: null },
+      location: {
+        type: String,
+        enum: ['line_1', 'line_2', 'line_3'],
+        default: null,
+      },
+    },
   },
 
   {

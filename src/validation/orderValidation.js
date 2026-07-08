@@ -45,7 +45,3 @@ export const patchOrderItemSchema = Joi.object({
   reason: Joi.string().max(100),
   notes: Joi.string().max(100).allow(''),
 });
-
-export const updateOrderItemStatusSchema = Joi.object({
-  status: Joi.string().valid('created', 'in_progress', 'completed').required(),
-});

@@ -30,10 +30,7 @@ const orderSchema = new Schema(
       required: true,
       default: 'created',
     },
-    completedAt: {
-      type: Date,
-      default: null,
-    },
+
     items: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -49,6 +46,5 @@ const orderSchema = new Schema(
 
 orderSchema.index({ status: 1, createdAt: -1 });
 orderSchema.index({ status: 1, updatedAt: -1 });
-orderSchema.index({ status: 1, completedAt: 1 });
 
 export const OrdersCollection = mongoose.model('Orders', orderSchema);
