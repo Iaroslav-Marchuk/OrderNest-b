@@ -50,15 +50,19 @@ export const getOrdersService = async ({
     .limit(limit)
     .populate('client', 'name')
     .populate('owner', 'name role')
-    .populate('items', 'status')
+    .populate('items', 'status quantity')
     .lean();
+
+  const PENDING_STATUSES = ['created', 'in_progress'];
 
   const ordersWithCount = orders.map((order) => ({
     ...order,
-    itemsPendingCount: order.items.filter(
-      (item) => item.status !== 'completed' && item.status !== 'rejected',
-    ).length,
-    itemsCount: order.items.filter((item) => item.status !== 'rejected').length,
+    itemsPendingCount: order.items
+      .filter((item) => PENDING_STATUSES.includes(item.status))
+      .reduce((sum, item) => sum + item.quantity, 0),
+    itemsCount: order.items
+      .filter((item) => item.status !== 'rejected')
+      .reduce((sum, item) => sum + item.quantity, 0),
   }));
 
   const paginationData = calculatePaginationData(ordersCount, page, perPage);
@@ -170,6 +174,7 @@ export const getOrderItemsService = async (orderId) => {
   })
 
     .populate('type', 'label temper')
+    .populate('completed.by', 'name role')
     .lean();
 
   return items;
@@ -303,7 +308,7 @@ export const completeOrderItemService = async (
       },
     },
     { new: true, runValidators: true },
-  );
+  ).populate('completed.by', 'name role');
 
   await recalculateOrderStatus(existOrder);
   return updatedItem;

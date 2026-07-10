@@ -55,23 +55,17 @@ export const logoutUserService = async (refreshToken) => {
 export const refreshSessionService = async (refreshToken) => {
   if (!refreshToken) throw createHttpError(401, 'No refresh token!');
 
-  const currentSession = await SessionsCollection.findOne({
-    refreshToken: refreshToken,
-  });
-
+  const currentSession = await SessionsCollection.findOne({ refreshToken });
   if (!currentSession) throw createHttpError(401, 'Session not found!');
 
   const isRefreshTokenExpired =
     new Date() > new Date(currentSession.refreshTokenValidUntil);
-
   if (isRefreshTokenExpired)
     throw createHttpError(401, 'Refresh token expired!');
 
   const user = await UsersCollection.findById(currentSession.userId).select(
     '-password',
   );
-
-  await SessionsCollection.deleteOne({ refreshToken });
 
   const newAccessToken = jwt.sign(
     {
@@ -85,12 +79,13 @@ export const refreshSessionService = async (refreshToken) => {
 
   const newRefreshToken = randomBytes(30).toString('base64');
 
-  await SessionsCollection.create({
-    userId: currentSession.userId,
-    refreshToken: newRefreshToken,
-    refreshTokenValidUntil: new Date(Date.now() + REFRESH_TOKEN_EXP),
-    location: currentSession.location ?? null,
-  });
+  await SessionsCollection.findOneAndUpdate(
+    { userId: currentSession.userId },
+    {
+      refreshToken: newRefreshToken,
+      refreshTokenValidUntil: new Date(Date.now() + REFRESH_TOKEN_EXP),
+    },
+  );
 
   return { accessToken: newAccessToken, refreshToken: newRefreshToken, user };
 };
