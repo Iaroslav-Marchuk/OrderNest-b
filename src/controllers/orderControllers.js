@@ -32,7 +32,7 @@ export const getOrdersController = async (req, res) => {
     sortOrder,
     filter,
     dateField: 'createdAt',
-    defaultRangeDays: 1,
+    defaultRangeDays: 7,
   });
 
   res.status(200).json({

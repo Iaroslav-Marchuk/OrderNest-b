@@ -8,7 +8,11 @@ const sessionModel = new Schema(
       required: true,
       unique: true,
     },
-    location: { type: String, default: null },
+    location: {
+      type: String,
+      enum: ['line_1', 'line_2', 'line_3'],
+      default: null,
+    },
     refreshToken: { type: String, required: true },
     refreshTokenValidUntil: { type: Date, required: true },
   },

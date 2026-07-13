@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import { getEnvVariable } from '../utils/getEnvVariable.js';
 import { UsersCollection } from '../db/models/userModel.js';
+import { SessionsCollection } from '../db/models/sessionModel.js';
 
 const secretKey = getEnvVariable('JWT_SECRET');
 
@@ -29,7 +30,15 @@ export const authenticate = async (req, res, next) => {
       return next(createHttpError(403, 'Account is deactivated'));
     }
 
-    req.user = { ...user.toObject(), location: decoded.location };
+    let location = null;
+    if (user.role === 'assembly') {
+      const session = await SessionsCollection.findOne({
+        userId: user._id,
+      }).select('location');
+      location = session?.location ?? null;
+    }
+
+    req.user = { ...user.toObject(), location };
 
     next();
   } catch {

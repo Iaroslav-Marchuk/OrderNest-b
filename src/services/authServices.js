@@ -19,15 +19,13 @@ export const loginUserService = async ({ tel, password }) => {
   const isEqual = await bcrypt.compare(password, user.password);
   if (!isEqual) throw createHttpError(401, 'Invalid email or password!');
 
+  if (!user.isActive) throw createHttpError(403, 'Account is deactivated');
+
   await SessionsCollection.deleteOne({ userId: user._id });
 
-  const accessToken = jwt.sign(
-    { userId: user._id, role: user.role, location: null },
-    JWT_SECRET,
-    {
-      expiresIn: ACCESS_TOKEN_EXP / 1000,
-    },
-  );
+  const accessToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXP / 1000,
+  });
 
   const refreshToken = randomBytes(30).toString('base64');
 
@@ -67,11 +65,15 @@ export const refreshSessionService = async (refreshToken) => {
     '-password',
   );
 
+  if (!user) throw createHttpError(401, 'User not found!');
+  if (!user.isActive) {
+    await SessionsCollection.deleteOne({ userId: user._id });
+    throw createHttpError(403, 'Account is deactivated');
+  }
+
   const newAccessToken = jwt.sign(
     {
       userId: currentSession.userId,
-      role: user.role,
-      location: currentSession.location ?? null,
     },
     JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXP / 1000 },
@@ -92,10 +94,17 @@ export const refreshSessionService = async (refreshToken) => {
 
 export const getCurrentUserService = async (userId) => {
   const user = await UsersCollection.findById(userId).select('-password');
-
   if (!user) throw createHttpError(404, 'User not found!');
 
-  return user;
+  let location = null;
+  if (user.role === 'assembly') {
+    const session = await SessionsCollection.findOne({ userId }).select(
+      'location',
+    );
+    location = session?.location ?? null;
+  }
+
+  return { ...user.toObject(), location };
 };
 
 export const changePasswordService = async (userId, oldPass, newPass) => {
@@ -111,13 +120,9 @@ export const changePasswordService = async (userId, oldPass, newPass) => {
   await user.save();
 
   await SessionsCollection.deleteOne({ userId: user._id });
-  const accessToken = jwt.sign(
-    { userId: user._id, role: user.role, location: null },
-    JWT_SECRET,
-    {
-      expiresIn: ACCESS_TOKEN_EXP / 1000,
-    },
-  );
+  const accessToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXP / 1000,
+  });
   const refreshToken = randomBytes(30).toString('base64');
 
   await SessionsCollection.create({
@@ -148,16 +153,10 @@ export const changeLocationService = async (userId, location) => {
   if (!validLocation.includes(location))
     throw createHttpError(400, 'Invalid location value!');
 
-  const accessToken = jwt.sign(
-    { userId: user._id, role: user.role, location },
-    JWT_SECRET,
-    { expiresIn: ACCESS_TOKEN_EXP / 1000 },
-  );
-
   await SessionsCollection.updateOne(
     { userId: user._id },
     { $set: { location } },
   );
 
-  return { accessToken };
+  return { location };
 };

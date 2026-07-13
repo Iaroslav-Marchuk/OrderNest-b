@@ -104,11 +104,9 @@ export const changePasswordController = async (req, res) => {
 export const changeLocationController = async (req, res) => {
   const userId = req.user._id;
   const { location } = req.body;
-
-  const { accessToken } = await changeLocationService(userId, location);
-
+  const updatedLocation = await changeLocationService(userId, location);
   res.status(200).json({
     message: 'Location updated successfully!',
-    data: { accessToken },
+    data: updatedLocation,
   });
 };
