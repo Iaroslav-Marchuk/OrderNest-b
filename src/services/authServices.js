@@ -13,15 +13,26 @@ import { getEnvVariable } from '../utils/getEnvVariable.js';
 const JWT_SECRET = getEnvVariable('JWT_SECRET');
 
 export const loginUserService = async ({ tel, password }) => {
-  const user = await UsersCollection.findOne({ tel: tel });
-  if (!user) throw createHttpError(401, 'Invalid email or password!');
+  const user = await UsersCollection.findOne({ tel });
+  if (!user) throw createHttpError(401, 'Invalid phone or password!');
 
   const isEqual = await bcrypt.compare(password, user.password);
-  if (!isEqual) throw createHttpError(401, 'Invalid email or password!');
+  if (!isEqual) throw createHttpError(401, 'Invalid phone or password!');
 
   if (!user.isActive) throw createHttpError(403, 'Account is deactivated');
 
-  await SessionsCollection.deleteOne({ userId: user._id });
+  const now = new Date();
+  const existingSession = await SessionsCollection.findOne({
+    userId: user._id,
+    refreshTokenValidUntil: { $gt: now },
+  });
+
+  if (existingSession) {
+    throw createHttpError(
+      409,
+      'This account is already logged in on another device. Please log out there first.',
+    );
+  }
 
   const accessToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
     expiresIn: ACCESS_TOKEN_EXP / 1000,
@@ -153,6 +164,20 @@ export const changeLocationService = async (userId, location) => {
   if (!validLocation.includes(location))
     throw createHttpError(400, 'Invalid location value!');
 
+  const now = new Date();
+
+  const occupiedBy = await SessionsCollection.findOne({
+    userId: { $ne: user._id },
+    location,
+    refreshTokenValidUntil: { $gt: now },
+  }).populate('userId', 'name');
+
+  if (occupiedBy) {
+    throw createHttpError(
+      409,
+      `Line is already occupied by ${occupiedBy.userId.name}`,
+    );
+  }
   await SessionsCollection.updateOne(
     { userId: user._id },
     { $set: { location } },

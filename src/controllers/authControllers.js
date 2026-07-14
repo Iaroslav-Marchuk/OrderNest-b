@@ -9,14 +9,18 @@ import {
   refreshSessionService,
 } from '../services/authServices.js';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 export const loginUserController = async (req, res) => {
   const { accessToken, refreshToken, user } = await loginUserService(req.body);
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     expires: new Date(Date.now() + REFRESH_TOKEN_EXP),
-    sameSite: 'None',
-    secure: true,
+    // sameSite: 'None',
+    // secure: true,
+    sameSite: isProd ? 'None' : 'Lax',
+    secure: isProd,
     path: '/',
   });
 
@@ -35,8 +39,10 @@ export const logoutUserController = async (req, res) => {
 
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    sameSite: 'None',
-    secure: true,
+    // sameSite: 'None',
+    // secure: true,
+    sameSite: isProd ? 'None' : 'Lax',
+    secure: isProd,
     path: '/',
   });
 
@@ -55,8 +61,10 @@ export const refreshSessionController = async (req, res) => {
   res.cookie('refreshToken', newRefreshToken, {
     httpOnly: true,
     expires: new Date(Date.now() + REFRESH_TOKEN_EXP),
-    sameSite: 'None',
-    secure: true,
+    // sameSite: 'None',
+    // secure: true,
+    sameSite: isProd ? 'None' : 'Lax',
+    secure: isProd,
     path: '/',
   });
 
@@ -90,8 +98,10 @@ export const changePasswordController = async (req, res) => {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     expires: new Date(Date.now() + REFRESH_TOKEN_EXP),
-    sameSite: 'None',
-    secure: true,
+    // sameSite: 'None',
+    // secure: true,
+    sameSite: isProd ? 'None' : 'Lax',
+    secure: isProd,
     path: '/',
   });
 
